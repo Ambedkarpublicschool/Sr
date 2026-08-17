@@ -16,6 +16,7 @@
       color: #0f172a;
     }
 
+    /* Screen UI Styles */
     .app-container {
       max-width: 1200px;
       margin: 20px auto;
@@ -48,6 +49,10 @@
       border-radius: 6px;
       font-size: 14px;
       outline: none;
+      background: #fff;
+    }
+    input[type="text"]:focus, select:focus {
+      border-color: #2563eb;
     }
     .btn {
       padding: 8px 16px;
@@ -59,11 +64,20 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      transition: background 0.2s;
     }
-    .btn-primary { background: #2563eb; color: white; }
-    .btn-primary:hover { background: #1d4ed8; }
     .btn-success { background: #16a34a; color: white; }
     .btn-success:hover { background: #15803d; }
+    .btn-secondary { background: #64748b; color: white; }
+    .btn-secondary:hover { background: #475569; }
+
+    #loading-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #64748b;
+    }
 
     /* Student Table */
     table.data-table {
@@ -105,7 +119,7 @@
       border-radius: 12px;
       padding: 8px 12px;
       margin-bottom: 8mm;
-      height: 132mm; /* Fits 2 on one A4 */
+      height: 132mm; /* Fits exactly 2 per A4 sheet */
       box-sizing: border-box;
       position: relative;
       background: #fff;
@@ -239,13 +253,13 @@
 
   <div class="app-container no-print">
     <div class="panel">
-      <h1 style="font-size: 20px; margin-bottom: 15px;">छात्र पत्रावली (SR Form) प्रिंट पोर्टल</h1>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h1 style="font-size: 20px; font-weight: bold;">छात्र पत्रावली (SR Form) प्रिंट पोर्टल</h1>
+        <div id="loading-indicator">⏳ डेटा लोड हो रहा है...</div>
+      </div>
       
       <div class="control-bar">
         <div class="filters-group">
-          <input type="text" id="api-url" placeholder="https://script.google.com/macros/s/AKfycbygVe44nYKylWKzhkHbdv3o5NmyJ6rAXARKy3xmRXja1mai3kBWLcshNH03Ge6c3FCn/exec" style="width: 250px;">
-          <button class="btn btn-primary" onclick="loadSheetData()">Load Data</button>
-          
           <!-- Filters -->
           <select id="session-filter" onchange="renderTable()">
             <option value="">All Sessions</option>
@@ -253,19 +267,21 @@
           <select id="class-filter" onchange="renderTable()">
             <option value="">All Classes</option>
           </select>
-          <input type="text" id="search-input" placeholder="Search Name, SR, Father..." oninput="renderTable()">
+          <input type="text" id="search-input" placeholder="Search Name, SR, Father..." oninput="renderTable()" style="width: 240px;">
+          
+          <button class="btn btn-secondary" onclick="fetchSheetData()" title="डेटा रिफ्रेश करें">↻ Refresh</button>
         </div>
 
         <button class="btn btn-success" onclick="prepareAndPrint()">
-          Print Selected (<span id="selected-count">0</span>)
+          🖨️ Print Selected (<span id="selected-count">0</span>)
         </button>
       </div>
 
       <table class="data-table">
         <thead>
           <tr>
-            <th style="width: 30px;"><input type="checkbox" id="select-all" onclick="toggleSelectAll(this)"></th>
-            <th onclick="sortTable('srNo')">SR No ⇕</th>
+            <th style="width: 35px;"><input type="checkbox" id="select-all" onclick="toggleSelectAll(this)"></th>
+            <th onclick="sortTable('srNo')">SR Number ⇕</th>
             <th onclick="sortTable('studentName')">Student Name ⇕</th>
             <th onclick="sortTable('fatherName')">Father Name ⇕</th>
             <th onclick="sortTable('className')">Class ⇕</th>
@@ -274,7 +290,7 @@
         </thead>
         <tbody id="student-table-body">
           <tr>
-            <td colspan="6" style="text-align: center; color: #64748b;">Sheet URL daal kar "Load Data" par click karein.</td>
+            <td colspan="6" style="text-align: center; color: #64748b;">कृपया प्रतीक्षा करें, डेटा लाया जा रहा है...</td>
           </tr>
         </tbody>
       </table>
@@ -285,6 +301,8 @@
   <div id="print-container"></div>
 
   <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbygVe44nYKylWKzhkHbdv3o5NmyJ6rAXARKy3xmRXja1mai3kBWLcshNH03Ge6c3FCn/exec';
+    
     let allStudents = [];
     let selectedStudentIds = new Set();
     let currentSort = { col: 'srNo', asc: true };
@@ -303,29 +321,31 @@
       return numStr;
     }
 
-    async function loadSheetData() {
-      const url = document.getElementById('api-url').value.trim();
-      if (!url) return alert('Kripya Google Apps Script Web App URL enter karein!');
-      
+    async function fetchSheetData() {
+      const loader = document.getElementById('loading-indicator');
+      loader.style.display = 'inline-flex';
+      loader.innerText = '⏳ डेटा लोड हो रहा है...';
+
       try {
-        const res = await fetch(url);
+        const res = await fetch(SCRIPT_URL);
         const data = await res.json();
         
-        allStudents = data.students || [];
+        allStudents = Array.isArray(data) ? data : (data.students || []);
+        const sessions = data.sessions || [...new Set(allStudents.map(s => s.session).filter(Boolean))];
         
-        // Populate Session Dropdown
+        // Populate Session Filter
         const sessionFilter = document.getElementById('session-filter');
         sessionFilter.innerHTML = '<option value="">All Sessions</option>';
-        (data.sessions || []).forEach(s => {
+        sessions.forEach(s => {
           sessionFilter.innerHTML += `<option value="${s}">${s}</option>`;
         });
 
-        // Set latest session selected by default if available
-        if (data.sessions && data.sessions.length > 0) {
-          sessionFilter.value = data.sessions[data.sessions.length - 1];
+        // Set the latest session selected by default
+        if (sessions.length > 0) {
+          sessionFilter.value = sessions[sessions.length - 1];
         }
 
-        // Populate Class Dropdown
+        // Populate Class Filter
         const classes = [...new Set(allStudents.map(s => s.className).filter(Boolean))];
         const classFilter = document.getElementById('class-filter');
         classFilter.innerHTML = '<option value="">All Classes</option>';
@@ -333,9 +353,15 @@
           classFilter.innerHTML += `<option value="${c}">${c}</option>`;
         });
 
+        loader.innerText = `✓ Total Students: ${allStudents.length}`;
         renderTable();
       } catch (err) {
-        alert('Data load karne me truti hui. URL aur permissions check karein.');
+        loader.innerText = '⚠️ डेटा लोड करने में त्रुटि हुई';
+        document.getElementById('student-table-body').innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; color: #dc2626;">Google Sheet से डेटा कनेक्ट नहीं हो सका। कृपया नेटवर्क या Apps Script permissions चेक करें।</td>
+          </tr>
+        `;
       }
     }
 
@@ -360,20 +386,24 @@
       });
 
       tbody.innerHTML = "";
-      filtered.forEach(st => {
-        const key = st.studentId || st.srNo;
-        const isChecked = selectedStudentIds.has(key);
-        tbody.innerHTML += `
-          <tr>
-            <td><input type="checkbox" value="${key}" ${isChecked ? 'checked' : ''} onchange="toggleSelect(this)"></td>
-            <td><strong>${st.srNo || '-'}</strong></td>
-            <td>${st.studentName}</td>
-            <td>${st.fatherName}</td>
-            <td>${st.className} ${st.section || ''}</td>
-            <td><span style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-size:12px;">${st.session || '-'}</span></td>
-          </tr>
-        `;
-      });
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b;">कोई रिकॉर्ड नहीं मिला।</td></tr>`;
+      } else {
+        filtered.forEach(st => {
+          const key = st.studentId || st.srNo;
+          const isChecked = selectedStudentIds.has(key);
+          tbody.innerHTML += `
+            <tr>
+              <td><input type="checkbox" value="${key}" ${isChecked ? 'checked' : ''} onchange="toggleSelect(this)"></td>
+              <td><strong>${st.srNo || '-'}</strong></td>
+              <td>${st.studentName}</td>
+              <td>${st.fatherName}</td>
+              <td>${st.className} ${st.section || ''}</td>
+              <td><span style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-size:12px;">${st.session || '-'}</span></td>
+            </tr>
+          `;
+        });
+      }
       document.getElementById('selected-count').innerText = selectedStudentIds.size;
     }
 
@@ -546,7 +576,7 @@
 
     function prepareAndPrint() {
       const selectedList = allStudents.filter(s => selectedStudentIds.has(s.studentId || s.srNo));
-      if (selectedList.length === 0) return alert('Kripya print karne ke liye kam se kam 1 student select karein!');
+      if (selectedList.length === 0) return alert('कृपया प्रिंट करने के लिए कम से कम 1 छात्र चुनें!');
 
       const printContainer = document.getElementById('print-container');
       printContainer.innerHTML = "";
@@ -564,6 +594,9 @@
 
       window.print();
     }
+
+    // Auto-fetch data on page load
+    document.addEventListener('DOMContentLoaded', fetchSheetData);
   </script>
 </body>
 </html>
