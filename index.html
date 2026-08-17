@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SR Form Generator & Printing Portal</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, "Noto Sans Devanagari", sans-serif;
+    }
+    body {
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+
+    /* Screen UI Styles */
+    .app-container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    .panel {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .control-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+    .filters-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    input[type="text"], select {
+      padding: 8px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+    }
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-success { background: #16a34a; color: white; }
+    .btn-success:hover { background: #15803d; }
+
+    /* Student Table */
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    table.data-table th, table.data-table td {
+      border: 1px solid #e2e8f0;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 14px;
+    }
+    table.data-table th {
+      background: #f8fafc;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+    table.data-table th:hover {
+      background: #e2e8f0;
+    }
+    table.data-table tr:hover {
+      background: #f8fafc;
+    }
+
+    /* Print Template Layout (Matching Exact Format) */
+    #print-container {
+      display: none;
+    }
+
+    .sr-page {
+      width: 100%;
+    }
+
+    .sr-card {
+      width: 100%;
+      border: 1.5px solid #000;
+      border-radius: 12px;
+      padding: 8px 12px;
+      margin-bottom: 8mm;
+      height: 132mm; /* Fits 2 on one A4 */
+      box-sizing: border-box;
+      position: relative;
+      background: #fff;
+    }
+
+    .sr-header-title {
+      text-align: center;
+      position: relative;
+    }
+    .sr-header-title h2 {
+      font-size: 17px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+    .sr-header-title p {
+      font-size: 12px;
+      margin-top: -2px;
+    }
+    .sr-no-box {
+      position: absolute;
+      right: 0;
+      top: 0;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .sr-meta-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      border-top: 1px solid #000;
+      border-bottom: 1px solid #000;
+      padding: 3px 0;
+      margin-top: 4px;
+    }
+    .sr-meta-item {
+      border-right: 1px solid #000;
+      padding: 0 4px;
+      flex: 1;
+    }
+    .sr-meta-item:last-child {
+      border-right: none;
+    }
+
+    .sr-grid-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 4px;
+    }
+    .sr-grid-table td, .sr-grid-table th {
+      border: 1px solid #000;
+      padding: 3px 4px;
+      font-size: 10.5px;
+      vertical-align: top;
+    }
+    .sr-grid-table th {
+      font-size: 9.5px;
+      text-align: center;
+      background: transparent;
+      font-weight: 600;
+    }
+
+    .digit-boxes {
+      display: inline-flex;
+      border: 1px solid #000;
+      margin-top: 2px;
+    }
+    .digit-box {
+      width: 14px;
+      height: 14px;
+      border-right: 1px solid #000;
+      display: inline-block;
+      text-align: center;
+      font-size: 10px;
+      line-height: 14px;
+    }
+    .digit-box:last-child {
+      border-right: none;
+    }
+
+    .dob-pen-row {
+      display: flex;
+      border: 1px solid #000;
+      border-top: none;
+      font-size: 10.5px;
+    }
+    .dob-pen-cell {
+      padding: 3px 4px;
+      border-right: 1px solid #000;
+    }
+    .dob-pen-cell:last-child {
+      border-right: none;
+    }
+
+    .bottom-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 4px;
+    }
+    .bottom-table th, .bottom-table td {
+      border: 1px solid #000;
+      font-size: 9px;
+      padding: 2px;
+      text-align: center;
+      height: 16px;
+    }
+
+    /* Print Media Rules */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 8mm 6mm;
+      }
+      body {
+        background: transparent !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      #print-container {
+        display: block !important;
+      }
+      .page-break {
+        page-break-after: always;
+        break-after: page;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container no-print">
+    <div class="panel">
+      <h1 style="font-size: 20px; margin-bottom: 15px;">छात्र पत्रावली (SR Form) प्रिंट पोर्टल</h1>
+      
+      <div class="control-bar">
+        <div class="filters-group">
+          <input type="text" id="api-url" placeholder="Apps Script Web App URL..." style="width: 280px;">
+          <button class="btn btn-primary" onclick="loadSheetData()">Load Sheet Data</button>
+          
+          <input type="text" id="search-input" placeholder="Search Name, SR, Father..." oninput="renderTable()">
+          <select id="class-filter" onchange="renderTable()">
+            <option value="">All Classes</option>
+          </select>
+        </div>
+
+        <button class="btn btn-success" onclick="prepareAndPrint()">
+          Print Selected (<span id="selected-count">0</span>)
+        </button>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 30px;"><input type="checkbox" id="select-all" onclick="toggleSelectAll(this)"></th>
+            <th onclick="sortTable('srNo')">SR No ⇕</th>
+            <th onclick="sortTable('studentName')">Student Name ⇕</th>
+            <th onclick="sortTable('fatherName')">Father Name ⇕</th>
+            <th onclick="sortTable('className')">Class ⇕</th>
+          </tr>
+        </thead>
+        <tbody id="student-table-body">
+          <tr>
+            <td colspan="5" style="text-align: center; color: #64748b;">Sheet URL daal kar "Load Sheet Data" par click karein.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Print Containers (A4 2 Cards Layout) -->
+  <div id="print-container"></div>
+
+  <script>
+    let allStudents = [];
+    let selectedStudentIds = new Set();
+    let currentSort = { col: 'srNo', asc: true };
+
+    // Numbers to Hindi/English words helper
+    function numberToWords(numStr) {
+      if (!numStr) return "";
+      const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+      const parts = numStr.split(/[-/]/);
+      if (parts.length === 3) {
+        let d = parseInt(parts[0], 10);
+        let m = parseInt(parts[1], 10);
+        let y = parts[2];
+        let mName = months[m - 1] || "";
+        return `${d} ${mName} ${y}`;
+      }
+      return numStr;
+    }
+
+    async function loadSheetData() {
+      const url = document.getElementById('api-url').value.trim();
+      if (!url) return alert('Kripya Google Apps Script Web App URL enter karein!');
+      
+      try {
+        const res = await fetch(url);
+        allStudents = await res.json();
+        
+        // Populate class dropdown
+        const classes = [...new Set(allStudents.map(s => s.className).filter(Boolean))];
+        const classFilter = document.getElementById('class-filter');
+        classFilter.innerHTML = '<option value="">All Classes</option>';
+        classes.forEach(c => {
+          classFilter.innerHTML += `<option value="${c}">${c}</option>`;
+        });
+
+        renderTable();
+      } catch (err) {
+        alert('Data load karne me truti hui. URL aur CORS permissions check karein.');
+      }
+    }
+
+    function renderTable() {
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const classVal = document.getElementById('class-filter').value;
+      const tbody = document.getElementById('student-table-body');
+
+      let filtered = allStudents.filter(s => {
+        const matchesSearch = (s.studentName + " " + s.fatherName + " " + s.srNo).toLowerCase().includes(search);
+        const matchesClass = !classVal || s.className === classVal;
+        return matchesSearch && matchesClass;
+      });
+
+      // Sort
+      filtered.sort((a, b) => {
+        let valA = a[currentSort.col] || "";
+        let valB = b[currentSort.col] || "";
+        return currentSort.asc ? valA.toString().localeCompare(valB.toString(), undefined, {numeric: true}) 
+                               : valB.toString().localeCompare(valA.toString(), undefined, {numeric: true});
+      });
+
+      tbody.innerHTML = "";
+      filtered.forEach((st, idx) => {
+        const isChecked = selectedStudentIds.has(st.srNo || st.studentId);
+        tbody.innerHTML += `
+          <tr>
+            <td><input type="checkbox" value="${st.srNo || st.studentId}" ${isChecked ? 'checked' : ''} onchange="toggleSelect(this)"></td>
+            <td><strong>${st.srNo || '-'}</strong></td>
+            <td>${st.studentName}</td>
+            <td>${st.fatherName}</td>
+            <td>${st.className} ${st.section || ''}</td>
+          </tr>
+        `;
+      });
+      document.getElementById('selected-count').innerText = selectedStudentIds.size;
+    }
+
+    function toggleSelect(cb) {
+      if (cb.checked) selectedStudentIds.add(cb.value);
+      else selectedStudentIds.delete(cb.value);
+      document.getElementById('selected-count').innerText = selectedStudentIds.size;
+    }
+
+    function toggleSelectAll(masterCb) {
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const classVal = document.getElementById('class-filter').value;
+      
+      allStudents.filter(s => {
+        const matchesSearch = (s.studentName + " " + s.fatherName + " " + s.srNo).toLowerCase().includes(search);
+        const matchesClass = !classVal || s.className === classVal;
+        return matchesSearch && matchesClass;
+      }).forEach(s => {
+        const key = s.srNo || s.studentId;
+        if (masterCb.checked) selectedStudentIds.add(key);
+        else selectedStudentIds.delete(key);
+      });
+
+      renderTable();
+    }
+
+    function sortTable(col) {
+      if (currentSort.col === col) {
+        currentSort.asc = !currentSort.asc;
+      } else {
+        currentSort.col = col;
+        currentSort.asc = true;
+      }
+      renderTable();
+    }
+
+    function generateMobileBoxes(mobile) {
+      const num = (mobile || "").toString().replace(/\D/g, "");
+      let html = '<div class="digit-boxes">';
+      for (let i = 0; i < 10; i++) {
+        html += `<span class="digit-box">${num[i] || ''}</span>`;
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function generateDateBoxes(d, m, y) {
+      let html = '<div style="display:inline-flex; gap:6px; align-items:center;">';
+      html += `<span>Date</span> <div class="digit-boxes"><span class="digit-box">${(d||'')[0]||''}</span><span class="digit-box">${(d||'')[1]||''}</span></div>`;
+      html += `<span>Month</span> <div class="digit-boxes"><span class="digit-box">${(m||'')[0]||''}</span><span class="digit-box">${(m||'')[1]||''}</span></div>`;
+      html += `<span>Year</span> <div class="digit-boxes">
+        <span class="digit-box">${(y||'')[0]||''}</span>
+        <span class="digit-box">${(y||'')[1]||''}</span>
+        <span class="digit-box">${(y||'')[2]||''}</span>
+        <span class="digit-box">${(y||'')[3]||''}</span>
+      </div>`;
+      html += '</div>';
+      return html;
+    }
+
+    function buildCardHTML(st) {
+      return `
+        <div class="sr-card">
+          <div class="sr-header-title">
+            <h2>छात्र पत्रावली तथा स्थानान्तरण प्रमाण–पत्र</h2>
+            <p>(Scholar's Register & Transfer Certificate Form)</p>
+            <div class="sr-no-box">${st.srNo || ''}</div>
+          </div>
+
+          <div class="sr-meta-row">
+            <div class="sr-meta-item">प्रवेश फाइल सं० / Admission File No...........</div>
+            <div class="sr-meta-item">निष्कासन फाइल सं० / Withdrawal File No...........</div>
+            <div class="sr-meta-item">स्थानान्तरण प्रमाण पत्र सं० / TC No...........</div>
+            <div class="sr-meta-item">पंजिका सं० / Register No...........</div>
+          </div>
+
+          <table class="sr-grid-table">
+            <thead>
+              <tr>
+                <th style="width: 22%;">छात्र/छात्रा का नाम, राष्ट्रीयता एवं जाति यदि हिन्दू हो अथवा धर्म<br><span style="font-size:8px;">Name of Scholar with nationality Caste Hindu otherwise religion</span></th>
+                <th style="width: 14%;">छात्र का आधार कार्ड नं०<br><span style="font-size:8px;">Scholar's Aadhar No.</span></th>
+                <th style="width: 27%;">संरक्षक/पिता अथवा पति का नाम, पता तथा वृत्ति<br><span style="font-size:8px;">Name Address & Occupation of Father, Guardian or Husband</span></th>
+                <th style="width: 22%;">माता का नाम, पता तथा वृत्ति<br><span style="font-size:8px;">Name of Mother, address & occupation</span></th>
+                <th style="width: 15%;">अन्तिम संस्था जिसमें पढ़ा/पढ़ी हो<br><span style="font-size:8px;">The Last Institution attended</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="height: 48px;">
+                <td>
+                  <strong>${st.studentName || ''}</strong><br>
+                  INDIAN<br>
+                  ${st.caste ? st.caste + ' / ' : ''}${st.religion || ''}
+                </td>
+                <td style="text-align: center; vertical-align: middle;">
+                  ${st.studentAadhaar || ''}
+                </td>
+                <td>
+                  <strong>${st.fatherName || ''}</strong><br>
+                  ${st.address || ''}<br>
+                  ${st.fatherOccupation ? 'व्यवसाय: ' + st.fatherOccupation : ''}<br>
+                  Mob. No. ${generateMobileBoxes(st.mobile)}
+                </td>
+                <td>
+                  <strong>${st.motherName || ''}</strong><br>
+                  ${st.address || ''}<br>
+                  ${st.motherOccupation ? 'वृत्ति: ' + st.motherOccupation : ''}
+                </td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="dob-pen-row">
+            <div class="dob-pen-cell" style="width: 42%;">
+              जन्मतिथि / Date of Birth: ${generateDateBoxes(st.dobDay, st.dobMonth, st.dobYear)}
+            </div>
+            <div class="dob-pen-cell" style="width: 58%;">
+              जन्मतिथि (शब्दों में) / Date of Birth: <strong>${numberToWords(st.dob)}</strong>
+            </div>
+          </div>
+
+          <div class="dob-pen-row" style="border-top: none;">
+            <div class="dob-pen-cell" style="width: 35%;">
+              छात्र/छात्रा का PEN नं० : <strong>${st.penNo || ''}</strong>
+            </div>
+            <div class="dob-pen-cell" style="width: 35%;">
+              अपार आई. डी. / APAAR ID.:
+            </div>
+            <div class="dob-pen-cell" style="width: 30%;">
+              विद्यालय का यू डायस कोड :
+            </div>
+          </div>
+
+          <table class="bottom-table">
+            <thead>
+              <tr>
+                <th rowspan="2" style="width:7%;">कक्षा</th>
+                <th rowspan="2" style="width:10%;">प्रवेश तिथि</th>
+                <th rowspan="2" style="width:10%;">कक्षोन्नति</th>
+                <th rowspan="2" style="width:10%;">निष्कासन तिथि</th>
+                <th rowspan="2" style="width:25%;">निष्कासन का कारण जैसे शुल्क का आशोधन, कुटुम्ब का प्रस्थान</th>
+                <th colspan="3" style="width:25%;">प्रस्थान के समय छात्र के सम्बन्ध में विवरण</th>
+                <th rowspan="2" style="width:13%;">हस्ताक्षर</th>
+              </tr>
+              <tr>
+                <th style="width:8%;">वर्ष</th>
+                <th style="width:8%;">आचरण</th>
+                <th style="width:9%;">कार्य</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>${st.className || ''}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function prepareAndPrint() {
+      const selectedList = allStudents.filter(s => selectedStudentIds.has(s.srNo || s.studentId));
+      if (selectedList.length === 0) return alert('Kripya print karne ke liye kam se kam 1 student select karein!');
+
+      const printContainer = document.getElementById('print-container');
+      printContainer.innerHTML = "";
+
+      // Group by 2 students per A4 Page
+      for (let i = 0; i < selectedList.length; i += 2) {
+        const pageDiv = document.createElement('div');
+        pageDiv.className = 'sr-page' + (i + 2 < selectedList.length ? ' page-break' : '');
+        
+        let card1 = buildCardHTML(selectedList[i]);
+        let card2 = selectedList[i + 1] ? buildCardHTML(selectedList[i + 1]) : '';
+        
+        pageDiv.innerHTML = card1 + card2;
+        printContainer.appendChild(pageDiv);
+      }
+
+      window.print();
+    }
+  </script>
+</body>
+</html>
