@@ -96,7 +96,7 @@
       border-radius: 8px;
       padding: 8px 12px;
       margin-bottom: 5mm;
-      height: 139mm; /* Fits 2 full cards on single A4 sheet */
+      height: 139mm;
       box-sizing: border-box;
       background: #fff;
       display: flex;
@@ -290,6 +290,7 @@
     let selectedStudentIds = new Set();
     let currentSort = { col: 'srNo', asc: true };
 
+    // Standard Indian School Register Date-to-Words Converter
     function convertDateToWords(dayStr, monthStr, yearStr) {
       let d = parseInt(dayStr, 10);
       let m = parseInt(monthStr, 10);
@@ -297,10 +298,16 @@
 
       if (isNaN(d) || isNaN(m) || isNaN(y)) return "";
 
+      // Day words 1 to 31 in Indian Standard format
       const daysWords = [
-        "", "First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth",
-        "Eleventh", "Twelfth", "Thirteenth", "Fourteenth", "Fifteenth", "Sixteenth", "Seventeenth", "Eighteenth", "Nineteenth", "Twentieth",
-        "Twenty First", "Twenty Second", "Twenty Third", "Twenty Fourth", "Twenty Fifth", "Twenty Sixth", "Twenty Seventh", "Twenty Eighth", "Twenty Ninth", "Thirtieth", "Thirty First"
+        "",
+        "First", "Second", "Third", "Fourth", "Fifth", 
+        "Sixth", "Seventh", "Eighth", "Ninth", "Tenth",
+        "Eleventh", "Twelfth", "Thirteenth", "Fourteenth", "Fifteenth", 
+        "Sixteenth", "Seventeenth", "Eighteenth", "Nineteenth", "Twentieth",
+        "Twenty First", "Twenty Second", "Twenty Third", "Twenty Fourth", "Twenty Fifth", 
+        "Twenty Sixth", "Twenty Seventh", "Twenty Eighth", "Twenty Ninth", "Thirtieth", 
+        "Thirty First"
       ];
       
       const months = [
@@ -319,8 +326,8 @@
         return String(n);
       }
 
-      let dWord = daysWords[d] || String(d);
-      let mWord = months[m - 1] || "";
+      let dWord = (d >= 1 && d <= 31) ? daysWords[d] : String(d);
+      let mWord = (m >= 1 && m <= 12) ? months[m - 1] : "";
       let yWord = convertNumberToWords(y);
 
       return `${dWord} ${mWord} ${yWord}`.trim();
