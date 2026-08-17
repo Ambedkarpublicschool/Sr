@@ -13,10 +13,10 @@
     }
     body {
       background-color: #f1f5f9;
-      color: #0f172a;
+      color: #000;
     }
 
-    /* Screen UI Styles */
+    /* Portal Screen Styles */
     .app-container {
       max-width: 1200px;
       margin: 20px auto;
@@ -27,7 +27,6 @@
       border-radius: 8px;
       padding: 20px;
       box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
     }
     .control-bar {
       display: flex;
@@ -51,9 +50,6 @@
       outline: none;
       background: #fff;
     }
-    input[type="text"]:focus, select:focus {
-      border-color: #2563eb;
-    }
     .btn {
       padding: 8px 16px;
       border: none;
@@ -64,22 +60,10 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: background 0.2s;
     }
     .btn-success { background: #16a34a; color: white; }
-    .btn-success:hover { background: #15803d; }
     .btn-secondary { background: #64748b; color: white; }
-    .btn-secondary:hover { background: #475569; }
 
-    #loading-indicator {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      color: #64748b;
-    }
-
-    /* Student Table */
     table.data-table {
       width: 100%;
       border-collapse: collapse;
@@ -97,14 +81,8 @@
       cursor: pointer;
       user-select: none;
     }
-    table.data-table th:hover {
-      background: #e2e8f0;
-    }
-    table.data-table tr:hover {
-      background: #f8fafc;
-    }
 
-    /* Print Template Layout */
+    /* Print Template Layout - Perfect Form Structure */
     #print-container {
       display: none;
     }
@@ -116,122 +94,127 @@
     .sr-card {
       width: 100%;
       border: 1.5px solid #000;
-      border-radius: 12px;
-      padding: 8px 12px;
-      margin-bottom: 8mm;
-      height: 132mm; /* Fits exactly 2 per A4 sheet */
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin-bottom: 6mm;
+      height: 135mm; /* Fits exactly 2 per A4 sheet */
       box-sizing: border-box;
-      position: relative;
       background: #fff;
+      overflow: hidden;
     }
 
-    .sr-header-title {
-      text-align: center;
-      position: relative;
-    }
-    .sr-header-title h2 {
-      font-size: 17px;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-    }
-    .sr-header-title p {
-      font-size: 12px;
-      margin-top: -2px;
-    }
-    .sr-no-box {
-      position: absolute;
-      right: 0;
-      top: 0;
-      font-size: 16px;
-      font-weight: bold;
-    }
-
-    .sr-meta-row {
+    .sr-header {
       display: flex;
       justify-content: space-between;
-      font-size: 11px;
-      border-top: 1px solid #000;
-      border-bottom: 1px solid #000;
-      padding: 3px 0;
-      margin-top: 4px;
+      align-items: flex-start;
+      margin-bottom: 4px;
     }
-    .sr-meta-item {
-      border-right: 1px solid #000;
-      padding: 0 4px;
+    .sr-title-block {
       flex: 1;
+      text-align: center;
     }
-    .sr-meta-item:last-child {
+    .sr-title-block h2 {
+      font-size: 15px;
+      font-weight: bold;
+      line-height: 1.2;
+    }
+    .sr-title-block p {
+      font-size: 11px;
+      margin-top: 1px;
+    }
+    .sr-number-badge {
+      font-size: 17px;
+      font-weight: bold;
+      min-width: 60px;
+      text-align: right;
+    }
+
+    .meta-line {
+      display: flex;
+      border: 1px solid #000;
+      font-size: 9.5px;
+      margin-bottom: 4px;
+    }
+    .meta-cell {
+      flex: 1;
+      padding: 2px 4px;
+      border-right: 1px solid #000;
+      white-space: nowrap;
+    }
+    .meta-cell:last-child {
       border-right: none;
     }
 
-    .sr-grid-table {
+    .main-grid {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 4px;
+      margin-bottom: 4px;
     }
-    .sr-grid-table td, .sr-grid-table th {
+    .main-grid th, .main-grid td {
       border: 1px solid #000;
       padding: 3px 4px;
-      font-size: 10.5px;
       vertical-align: top;
-    }
-    .sr-grid-table th {
       font-size: 9.5px;
+      line-height: 1.25;
+    }
+    .main-grid th {
       text-align: center;
-      background: transparent;
       font-weight: 600;
+      background: transparent;
+      font-size: 9px;
     }
 
-    .digit-boxes {
+    .box-digits {
       display: inline-flex;
       border: 1px solid #000;
       margin-top: 2px;
     }
-    .digit-box {
-      width: 14px;
-      height: 14px;
+    .box-digit {
+      width: 12px;
+      height: 13px;
       border-right: 1px solid #000;
-      display: inline-block;
       text-align: center;
-      font-size: 10px;
-      line-height: 14px;
+      font-size: 9.5px;
+      line-height: 13px;
     }
-    .digit-box:last-child {
+    .box-digit:last-child {
       border-right: none;
     }
 
-    .dob-pen-row {
+    .info-strip {
       display: flex;
       border: 1px solid #000;
-      border-top: none;
-      font-size: 10.5px;
+      border-bottom: none;
+      font-size: 9.5px;
     }
-    .dob-pen-cell {
-      padding: 3px 4px;
+    .info-strip:last-of-type {
+      border-bottom: 1px solid #000;
+      margin-bottom: 4px;
+    }
+    .strip-cell {
+      padding: 2px 4px;
       border-right: 1px solid #000;
     }
-    .dob-pen-cell:last-child {
+    .strip-cell:last-child {
       border-right: none;
     }
 
-    .bottom-table {
+    .table-footer {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 4px;
     }
-    .bottom-table th, .bottom-table td {
+    .table-footer th, .table-footer td {
       border: 1px solid #000;
-      font-size: 9px;
+      font-size: 8.5px;
       padding: 2px;
       text-align: center;
       height: 16px;
     }
 
-    /* Print Media Rules */
     @media print {
       @page {
         size: A4 portrait;
-        margin: 8mm 6mm;
+        margin: 6mm 6mm;
       }
       body {
         background: transparent !important;
@@ -255,12 +238,11 @@
     <div class="panel">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
         <h1 style="font-size: 20px; font-weight: bold;">छात्र पत्रावली (SR Form) प्रिंट पोर्टल</h1>
-        <div id="loading-indicator">⏳ डेटा लोड हो रहा है...</div>
+        <div id="status-tag" style="font-size: 13px; color: #64748b;">⏳ डेटा लोड हो रहा है...</div>
       </div>
       
       <div class="control-bar">
         <div class="filters-group">
-          <!-- Filters -->
           <select id="session-filter" onchange="renderTable()">
             <option value="">All Sessions</option>
           </select>
@@ -268,8 +250,7 @@
             <option value="">All Classes</option>
           </select>
           <input type="text" id="search-input" placeholder="Search Name, SR, Father..." oninput="renderTable()" style="width: 240px;">
-          
-          <button class="btn btn-secondary" onclick="fetchSheetData()" title="डेटा रिफ्रेश करें">↻ Refresh</button>
+          <button class="btn btn-secondary" onclick="fetchSheetData()">↻ Refresh</button>
         </div>
 
         <button class="btn btn-success" onclick="prepareAndPrint()">
@@ -281,7 +262,7 @@
         <thead>
           <tr>
             <th style="width: 35px;"><input type="checkbox" id="select-all" onclick="toggleSelectAll(this)"></th>
-            <th onclick="sortTable('srNo')">SR Number ⇕</th>
+            <th onclick="sortTable('srNo')">SR No ⇕</th>
             <th onclick="sortTable('studentName')">Student Name ⇕</th>
             <th onclick="sortTable('fatherName')">Father Name ⇕</th>
             <th onclick="sortTable('className')">Class ⇕</th>
@@ -290,14 +271,13 @@
         </thead>
         <tbody id="student-table-body">
           <tr>
-            <td colspan="6" style="text-align: center; color: #64748b;">कृपया प्रतीक्षा करें, डेटा लाया जा रहा है...</td>
+            <td colspan="6" style="text-align: center; color: #64748b;">डेटा लोड हो रहा है...</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- Print Container -->
   <div id="print-container"></div>
 
   <script>
@@ -307,24 +287,38 @@
     let selectedStudentIds = new Set();
     let currentSort = { col: 'srNo', asc: true };
 
-    function numberToWords(numStr) {
-      if (!numStr) return "";
-      const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-      const parts = numStr.split(/[-/]/);
-      if (parts.length === 3) {
-        let d = parseInt(parts[0], 10);
-        let m = parseInt(parts[1], 10);
-        let y = parts[2];
-        let mName = months[m - 1] || "";
-        return `${d} ${mName} ${y}`;
+    // Accurate DOB in Words Converter
+    function convertDateToWords(d, m, y) {
+      if (!d || !m || !y) return "";
+      const daysWords = ["", "First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth",
+        "Eleventh", "Twelfth", "Thirteenth", "Fourteenth", "Fifteenth", "Sixteenth", "Seventeenth", "Eighteenth", "Nineteenth", "Twentieth",
+        "Twenty First", "Twenty Second", "Twenty Third", "Twenty Fourth", "Twenty Fifth", "Twenty Sixth", "Twenty Seventh", "Twenty Eighth", "Twenty Ninth", "Thirtieth", "Thirty First"];
+      
+      const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      
+      function yearToWords(num) {
+        const units = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+          "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+        const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+        let n = parseInt(num, 10);
+        if (isNaN(n)) return num;
+        if (n < 20) return units[n];
+        if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? " " + units[n % 10] : "");
+        if (n < 1000) return units[Math.floor(n / 100)] + " Hundred" + (n % 100 !== 0 ? " " + yearToWords(n % 100) : "");
+        if (n < 10000) return yearToWords(Math.floor(n / 1000)) + " Thousand" + (n % 1000 !== 0 ? " " + yearToWords(n % 1000) : "");
+        return num;
       }
-      return numStr;
+
+      let dWord = daysWords[parseInt(d, 10)] || d;
+      let mWord = months[parseInt(m, 10) - 1] || m;
+      let yWord = yearToWords(y);
+
+      return `${dWord} ${mWord} ${yWord}`;
     }
 
     async function fetchSheetData() {
-      const loader = document.getElementById('loading-indicator');
-      loader.style.display = 'inline-flex';
-      loader.innerText = '⏳ डेटा लोड हो रहा है...';
+      const tag = document.getElementById('status-tag');
+      tag.innerText = '⏳ डेटा लोड हो रहा है...';
 
       try {
         const res = await fetch(SCRIPT_URL);
@@ -333,19 +327,16 @@
         allStudents = Array.isArray(data) ? data : (data.students || []);
         const sessions = data.sessions || [...new Set(allStudents.map(s => s.session).filter(Boolean))];
         
-        // Populate Session Filter
         const sessionFilter = document.getElementById('session-filter');
         sessionFilter.innerHTML = '<option value="">All Sessions</option>';
         sessions.forEach(s => {
           sessionFilter.innerHTML += `<option value="${s}">${s}</option>`;
         });
 
-        // Set the latest session selected by default
         if (sessions.length > 0) {
-          sessionFilter.value = sessions[sessions.length - 1];
+          sessionFilter.value = sessions[sessions.length - 1]; // Latest session default
         }
 
-        // Populate Class Filter
         const classes = [...new Set(allStudents.map(s => s.className).filter(Boolean))];
         const classFilter = document.getElementById('class-filter');
         classFilter.innerHTML = '<option value="">All Classes</option>';
@@ -353,15 +344,10 @@
           classFilter.innerHTML += `<option value="${c}">${c}</option>`;
         });
 
-        loader.innerText = `✓ Total Students: ${allStudents.length}`;
+        tag.innerText = `✓ Total Students: ${allStudents.length}`;
         renderTable();
       } catch (err) {
-        loader.innerText = '⚠️ डेटा लोड करने में त्रुटि हुई';
-        document.getElementById('student-table-body').innerHTML = `
-          <tr>
-            <td colspan="6" style="text-align: center; color: #dc2626;">Google Sheet से डेटा कनेक्ट नहीं हो सका। कृपया नेटवर्क या Apps Script permissions चेक करें।</td>
-          </tr>
-        `;
+        tag.innerText = '⚠️ डेटा लोड करने में त्रुटि';
       }
     }
 
@@ -433,80 +419,83 @@
     }
 
     function sortTable(col) {
-      if (currentSort.col === col) {
-        currentSort.asc = !currentSort.asc;
-      } else {
-        currentSort.col = col;
-        currentSort.asc = true;
-      }
+      if (currentSort.col === col) currentSort.asc = !currentSort.asc;
+      else { currentSort.col = col; currentSort.asc = true; }
       renderTable();
     }
 
-    function generateMobileBoxes(mobile) {
+    function renderMobileBoxes(mobile) {
       const num = (mobile || "").toString().replace(/\D/g, "");
-      let html = '<div class="digit-boxes">';
+      let html = '<div class="box-digits">';
       for (let i = 0; i < 10; i++) {
-        html += `<span class="digit-box">${num[i] || ''}</span>`;
+        html += `<span class="box-digit">${num[i] || ''}</span>`;
       }
       html += '</div>';
       return html;
     }
 
-    function generateDateBoxes(d, m, y) {
-      let html = '<div style="display:inline-flex; gap:6px; align-items:center;">';
-      html += `<span>Date</span> <div class="digit-boxes"><span class="digit-box">${(d||'')[0]||''}</span><span class="digit-box">${(d||'')[1]||''}</span></div>`;
-      html += `<span>Month</span> <div class="digit-boxes"><span class="digit-box">${(m||'')[0]||''}</span><span class="digit-box">${(m||'')[1]||''}</span></div>`;
-      html += `<span>Year</span> <div class="digit-boxes">
-        <span class="digit-box">${(y||'')[0]||''}</span>
-        <span class="digit-box">${(y||'')[1]||''}</span>
-        <span class="digit-box">${(y||'')[2]||''}</span>
-        <span class="digit-box">${(y||'')[3]||''}</span>
-      </div>`;
-      html += '</div>';
-      return html;
+    function renderDateBoxes(d, m, y) {
+      let d1 = (d || "")[0] || "", d2 = (d || "")[1] || "";
+      let m1 = (m || "")[0] || "", m2 = (m || "")[1] || "";
+      let yStr = String(y || "");
+      return `
+        <span style="margin-right:2px;">Date</span><div class="box-digits"><span class="box-digit">${d1}</span><span class="box-digit">${d2}</span></div>
+        <span style="margin: 0 2px 0 4px;">Month</span><div class="box-digits"><span class="box-digit">${m1}</span><span class="box-digit">${m2}</span></div>
+        <span style="margin: 0 2px 0 4px;">Year</span><div class="box-digits">
+          <span class="box-digit">${yStr[0] || ''}</span><span class="box-digit">${yStr[1] || ''}</span><span class="box-digit">${yStr[2] || ''}</span><span class="box-digit">${yStr[3] || ''}</span>
+        </div>
+      `;
     }
 
     function buildCardHTML(st) {
+      const dobInWords = convertDateToWords(st.dobDay, st.dobMonth, st.dobYear);
+
       return `
         <div class="sr-card">
-          <div class="sr-header-title">
-            <h2>छात्र पत्रावली तथा स्थानान्तरण प्रमाण–पत्र</h2>
-            <p>(Scholar's Register & Transfer Certificate Form)</p>
-            <div class="sr-no-box">${st.srNo || ''}</div>
+          <!-- Top Header -->
+          <div class="sr-header">
+            <div style="width: 60px;"></div>
+            <div class="sr-title-block">
+              <h2>छात्र पत्रावली तथा स्थानान्तरण प्रमाण–पत्र</h2>
+              <p>(Scholar's Register & Transfer Certificate Form)</p>
+            </div>
+            <div class="sr-number-badge">${st.srNo || ''}</div>
           </div>
 
-          <div class="sr-meta-row">
-            <div class="sr-meta-item">प्रवेश फाइल सं० / Admission File No...........</div>
-            <div class="sr-meta-item">निष्कासन फाइल सं० / Withdrawal File No...........</div>
-            <div class="sr-meta-item">स्थानान्तरण प्रमाण पत्र सं० / TC No...........</div>
-            <div class="sr-meta-item">पंजिका सं० / Register No...........</div>
+          <!-- Meta Row -->
+          <div class="meta-line">
+            <div class="meta-cell">प्रवेश फाइल सं०....................</div>
+            <div class="meta-cell">निष्कासन फाइल सं०....................</div>
+            <div class="meta-cell">स्थानान्तरण प्रमाण पत्र सं०....................</div>
+            <div class="meta-cell">पंजिका सं०....................</div>
           </div>
 
-          <table class="sr-grid-table">
+          <!-- 5 Columns Main Grid -->
+          <table class="main-grid">
             <thead>
               <tr>
-                <th style="width: 22%;">छात्र/छात्रा का नाम, राष्ट्रीयता एवं जाति यदि हिन्दू हो अथवा धर्म<br><span style="font-size:8px;">Name of Scholar with nationality Caste Hindu otherwise religion</span></th>
-                <th style="width: 14%;">छात्र का आधार कार्ड नं०<br><span style="font-size:8px;">Scholar's Aadhar No.</span></th>
-                <th style="width: 27%;">संरक्षक/पिता अथवा पति का नाम, पता तथा वृत्ति<br><span style="font-size:8px;">Name Address & Occupation of Father, Guardian or Husband</span></th>
-                <th style="width: 22%;">माता का नाम, पता तथा वृत्ति<br><span style="font-size:8px;">Name of Mother, address & occupation</span></th>
-                <th style="width: 15%;">अन्तिम संस्था जिसमें पढ़ा/पढ़ी हो<br><span style="font-size:8px;">The Last Institution attended</span></th>
+                <th style="width: 22%;">छात्र/छात्रा का नाम राष्ट्रीयता एवं जाति यदि हिन्दू हो अथवा धर्म<br><span style="font-size:7.5px;">Name of Scholar with nationality Caste Hindu otherwise religion</span></th>
+                <th style="width: 14%;">छात्र का आधार कार्ड नं०<br><span style="font-size:7.5px;">Scholar's Aadhar No.</span></th>
+                <th style="width: 28%;">संरक्षक/पिता अथवा पति का नाम पता तथा वृत्ति<br><span style="font-size:7.5px;">Name Address & Occupation of Father, Guardian or Husband</span></th>
+                <th style="width: 22%;">माता का नाम पता तथा वृत्ति<br><span style="font-size:7.5px;">Name of Mother, address & occupation</span></th>
+                <th style="width: 14%;">अन्तिम संस्था जिसमें पढ़ा/पढ़ी हो<br><span style="font-size:7.5px;">The Last Institution attended</span></th>
               </tr>
             </thead>
             <tbody>
-              <tr style="height: 48px;">
+              <tr style="height: 52px;">
                 <td>
                   <strong>${st.studentName || ''}</strong><br>
                   INDIAN<br>
                   ${st.caste ? st.caste + ' / ' : ''}${st.religion || ''}
                 </td>
-                <td style="text-align: center; vertical-align: middle;">
+                <td style="text-align: center; vertical-align: middle; font-weight: bold;">
                   ${st.studentAadhaar || ''}
                 </td>
                 <td>
                   <strong>${st.fatherName || ''}</strong><br>
                   ${st.address || ''}<br>
                   ${st.fatherOccupation ? 'व्यवसाय: ' + st.fatherOccupation : ''}<br>
-                  Mob. No. ${generateMobileBoxes(st.mobile)}
+                  Mob. No. ${renderMobileBoxes(st.mobile)}
                 </td>
                 <td>
                   <strong>${st.motherName || ''}</strong><br>
@@ -518,42 +507,47 @@
             </tbody>
           </table>
 
-          <div class="dob-pen-row">
-            <div class="dob-pen-cell" style="width: 42%;">
-              जन्मतिथि / Date of Birth: ${generateDateBoxes(st.dobDay, st.dobMonth, st.dobYear)}
+          <!-- Date of Birth Rows -->
+          <div class="info-strip">
+            <div class="strip-cell" style="width: 44%; display: flex; align-items: center;">
+              <span style="font-weight:600; margin-right:4px;">जन्मतिथि / Date of Birth:</span> 
+              ${renderDateBoxes(st.dobDay, st.dobMonth, st.dobYear)}
             </div>
-            <div class="dob-pen-cell" style="width: 58%;">
-              जन्मतिथि (शब्दों में) / Date of Birth: <strong>${numberToWords(st.dob)}</strong>
+            <div class="strip-cell" style="width: 56%;">
+              <span style="font-weight:600;">जन्मतिथि (शब्दों में) / Date of Birth:</span> 
+              <span>${dobInWords}</span>
             </div>
           </div>
 
-          <div class="dob-pen-row" style="border-top: none;">
-            <div class="dob-pen-cell" style="width: 35%;">
+          <!-- PEN / APAAR / UDISE -->
+          <div class="info-strip">
+            <div class="strip-cell" style="width: 38%;">
               छात्र/छात्रा का PEN नं० : <strong>${st.penNo || ''}</strong>
             </div>
-            <div class="dob-pen-cell" style="width: 35%;">
+            <div class="strip-cell" style="width: 32%;">
               अपार आई. डी. / APAAR ID.:
             </div>
-            <div class="dob-pen-cell" style="width: 30%;">
+            <div class="strip-cell" style="width: 30%;">
               विद्यालय का यू डायस कोड :
             </div>
           </div>
 
-          <table class="bottom-table">
+          <!-- Bottom History Table -->
+          <table class="table-footer">
             <thead>
               <tr>
-                <th rowspan="2" style="width:7%;">कक्षा</th>
-                <th rowspan="2" style="width:10%;">प्रवेश तिथि</th>
-                <th rowspan="2" style="width:10%;">कक्षोन्नति</th>
-                <th rowspan="2" style="width:10%;">निष्कासन तिथि</th>
-                <th rowspan="2" style="width:25%;">निष्कासन का कारण जैसे शुल्क का आशोधन, कुटुम्ब का प्रस्थान</th>
-                <th colspan="3" style="width:25%;">प्रस्थान के समय छात्र के सम्बन्ध में विवरण</th>
-                <th rowspan="2" style="width:13%;">हस्ताक्षर</th>
+                <th rowspan="2" style="width: 7%;">कक्षा</th>
+                <th rowspan="2" style="width: 10%;">प्रवेश तिथि</th>
+                <th rowspan="2" style="width: 10%;">कक्षोन्नति</th>
+                <th rowspan="2" style="width: 10%;">निष्कासन तिथि</th>
+                <th rowspan="2" style="width: 25%;">निष्कासन का कारण जैसे शुल्क का आशोधन, कुटुम्ब का प्रस्थान</th>
+                <th colspan="3" style="width: 24%;">प्रस्थान के समय छात्र के सम्बन्ध में विवरण</th>
+                <th rowspan="2" style="width: 14%;">हस्ताक्षर</th>
               </tr>
               <tr>
-                <th style="width:8%;">वर्ष</th>
-                <th style="width:8%;">आचरण</th>
-                <th style="width:9%;">कार्य</th>
+                <th style="width: 8%;">वर्ष</th>
+                <th style="width: 8%;">आचरण</th>
+                <th style="width: 8%;">कार्य</th>
               </tr>
             </thead>
             <tbody>
@@ -595,7 +589,6 @@
       window.print();
     }
 
-    // Auto-fetch data on page load
     document.addEventListener('DOMContentLoaded', fetchSheetData);
   </script>
 </body>
