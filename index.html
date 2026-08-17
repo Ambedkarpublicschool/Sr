@@ -16,7 +16,6 @@
       color: #0f172a;
     }
 
-    /* Screen UI Styles */
     .app-container {
       max-width: 1200px;
       margin: 20px auto;
@@ -32,7 +31,7 @@
     .control-bar {
       display: flex;
       flex-wrap: wrap;
-      gap: 15px;
+      gap: 12px;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 15px;
@@ -41,6 +40,7 @@
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
+      align-items: center;
     }
     input[type="text"], select {
       padding: 8px 12px;
@@ -90,7 +90,7 @@
       background: #f8fafc;
     }
 
-    /* Print Template Layout (Matching Exact Format) */
+    /* Print Template Layout */
     #print-container {
       display: none;
     }
@@ -243,13 +243,17 @@
       
       <div class="control-bar">
         <div class="filters-group">
-          <input type="text" id="api-url" placeholder="Apps Script Web App URL..." style="width: 280px;">
-          <button class="btn btn-primary" onclick="loadSheetData()">Load Sheet Data</button>
+          <input type="text" id="api-url" placeholder="Apps Script Web App URL..." style="width: 250px;">
+          <button class="btn btn-primary" onclick="loadSheetData()">Load Data</button>
           
-          <input type="text" id="search-input" placeholder="Search Name, SR, Father..." oninput="renderTable()">
+          <!-- Filters -->
+          <select id="session-filter" onchange="renderTable()">
+            <option value="">All Sessions</option>
+          </select>
           <select id="class-filter" onchange="renderTable()">
             <option value="">All Classes</option>
           </select>
+          <input type="text" id="search-input" placeholder="Search Name, SR, Father..." oninput="renderTable()">
         </div>
 
         <button class="btn btn-success" onclick="prepareAndPrint()">
@@ -265,18 +269,19 @@
             <th onclick="sortTable('studentName')">Student Name ⇕</th>
             <th onclick="sortTable('fatherName')">Father Name ⇕</th>
             <th onclick="sortTable('className')">Class ⇕</th>
+            <th onclick="sortTable('session')">Session ⇕</th>
           </tr>
         </thead>
         <tbody id="student-table-body">
           <tr>
-            <td colspan="5" style="text-align: center; color: #64748b;">Sheet URL daal kar "Load Sheet Data" par click karein.</td>
+            <td colspan="6" style="text-align: center; color: #64748b;">Sheet URL daal kar "Load Data" par click karein.</td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
 
-  <!-- Print Containers (A4 2 Cards Layout) -->
+  <!-- Print Container -->
   <div id="print-container"></div>
 
   <script>
@@ -284,7 +289,6 @@
     let selectedStudentIds = new Set();
     let currentSort = { col: 'srNo', asc: true };
 
-    // Numbers to Hindi/English words helper
     function numberToWords(numStr) {
       if (!numStr) return "";
       const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -305,9 +309,23 @@
       
       try {
         const res = await fetch(url);
-        allStudents = await res.json();
+        const data = await res.json();
         
-        // Populate class dropdown
+        allStudents = data.students || [];
+        
+        // Populate Session Dropdown
+        const sessionFilter = document.getElementById('session-filter');
+        sessionFilter.innerHTML = '<option value="">All Sessions</option>';
+        (data.sessions || []).forEach(s => {
+          sessionFilter.innerHTML += `<option value="${s}">${s}</option>`;
+        });
+
+        // Set latest session selected by default if available
+        if (data.sessions && data.sessions.length > 0) {
+          sessionFilter.value = data.sessions[data.sessions.length - 1];
+        }
+
+        // Populate Class Dropdown
         const classes = [...new Set(allStudents.map(s => s.className).filter(Boolean))];
         const classFilter = document.getElementById('class-filter');
         classFilter.innerHTML = '<option value="">All Classes</option>';
@@ -317,22 +335,23 @@
 
         renderTable();
       } catch (err) {
-        alert('Data load karne me truti hui. URL aur CORS permissions check karein.');
+        alert('Data load karne me truti hui. URL aur permissions check karein.');
       }
     }
 
     function renderTable() {
       const search = document.getElementById('search-input').value.toLowerCase();
       const classVal = document.getElementById('class-filter').value;
+      const sessionVal = document.getElementById('session-filter').value;
       const tbody = document.getElementById('student-table-body');
 
       let filtered = allStudents.filter(s => {
         const matchesSearch = (s.studentName + " " + s.fatherName + " " + s.srNo).toLowerCase().includes(search);
         const matchesClass = !classVal || s.className === classVal;
-        return matchesSearch && matchesClass;
+        const matchesSession = !sessionVal || s.session === sessionVal;
+        return matchesSearch && matchesClass && matchesSession;
       });
 
-      // Sort
       filtered.sort((a, b) => {
         let valA = a[currentSort.col] || "";
         let valB = b[currentSort.col] || "";
@@ -341,15 +360,17 @@
       });
 
       tbody.innerHTML = "";
-      filtered.forEach((st, idx) => {
-        const isChecked = selectedStudentIds.has(st.srNo || st.studentId);
+      filtered.forEach(st => {
+        const key = st.studentId || st.srNo;
+        const isChecked = selectedStudentIds.has(key);
         tbody.innerHTML += `
           <tr>
-            <td><input type="checkbox" value="${st.srNo || st.studentId}" ${isChecked ? 'checked' : ''} onchange="toggleSelect(this)"></td>
+            <td><input type="checkbox" value="${key}" ${isChecked ? 'checked' : ''} onchange="toggleSelect(this)"></td>
             <td><strong>${st.srNo || '-'}</strong></td>
             <td>${st.studentName}</td>
             <td>${st.fatherName}</td>
             <td>${st.className} ${st.section || ''}</td>
+            <td><span style="background:#e2e8f0; padding:2px 6px; border-radius:4px; font-size:12px;">${st.session || '-'}</span></td>
           </tr>
         `;
       });
@@ -365,13 +386,15 @@
     function toggleSelectAll(masterCb) {
       const search = document.getElementById('search-input').value.toLowerCase();
       const classVal = document.getElementById('class-filter').value;
+      const sessionVal = document.getElementById('session-filter').value;
       
       allStudents.filter(s => {
         const matchesSearch = (s.studentName + " " + s.fatherName + " " + s.srNo).toLowerCase().includes(search);
         const matchesClass = !classVal || s.className === classVal;
-        return matchesSearch && matchesClass;
+        const matchesSession = !sessionVal || s.session === sessionVal;
+        return matchesSearch && matchesClass && matchesSession;
       }).forEach(s => {
-        const key = s.srNo || s.studentId;
+        const key = s.studentId || s.srNo;
         if (masterCb.checked) selectedStudentIds.add(key);
         else selectedStudentIds.delete(key);
       });
@@ -522,13 +545,12 @@
     }
 
     function prepareAndPrint() {
-      const selectedList = allStudents.filter(s => selectedStudentIds.has(s.srNo || s.studentId));
+      const selectedList = allStudents.filter(s => selectedStudentIds.has(s.studentId || s.srNo));
       if (selectedList.length === 0) return alert('Kripya print karne ke liye kam se kam 1 student select karein!');
 
       const printContainer = document.getElementById('print-container');
       printContainer.innerHTML = "";
 
-      // Group by 2 students per A4 Page
       for (let i = 0; i < selectedList.length; i += 2) {
         const pageDiv = document.createElement('div');
         pageDiv.className = 'sr-page' + (i + 2 < selectedList.length ? ' page-break' : '');
