@@ -16,7 +16,6 @@
       color: #000;
     }
 
-    /* Portal Screen Styles */
     .app-container {
       max-width: 1200px;
       margin: 20px auto;
@@ -82,7 +81,6 @@
       user-select: none;
     }
 
-    /* Print Template Layout - Perfect Form Structure */
     #print-container {
       display: none;
     }
@@ -97,7 +95,7 @@
       border-radius: 10px;
       padding: 8px 10px;
       margin-bottom: 6mm;
-      height: 135mm; /* Fits exactly 2 per A4 sheet */
+      height: 135mm;
       box-sizing: border-box;
       background: #fff;
       overflow: hidden;
@@ -287,33 +285,41 @@
     let selectedStudentIds = new Set();
     let currentSort = { col: 'srNo', asc: true };
 
-    // Accurate DOB in Words Converter
-    function convertDateToWords(d, m, y) {
-      if (!d || !m || !y) return "";
-      const daysWords = ["", "First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth",
+    // Full Date to English Words logic
+    function convertDateToWords(dayStr, monthStr, yearStr) {
+      let d = parseInt(dayStr, 10);
+      let m = parseInt(monthStr, 10);
+      let y = parseInt(yearStr, 10);
+
+      if (isNaN(d) || isNaN(m) || isNaN(y)) return "";
+
+      const daysWords = [
+        "", "First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth", "Tenth",
         "Eleventh", "Twelfth", "Thirteenth", "Fourteenth", "Fifteenth", "Sixteenth", "Seventeenth", "Eighteenth", "Nineteenth", "Twentieth",
-        "Twenty First", "Twenty Second", "Twenty Third", "Twenty Fourth", "Twenty Fifth", "Twenty Sixth", "Twenty Seventh", "Twenty Eighth", "Twenty Ninth", "Thirtieth", "Thirty First"];
+        "Twenty First", "Twenty Second", "Twenty Third", "Twenty Fourth", "Twenty Fifth", "Twenty Sixth", "Twenty Seventh", "Twenty Eighth", "Twenty Ninth", "Thirtieth", "Thirty First"
+      ];
       
-      const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-      
-      function yearToWords(num) {
-        const units = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
-          "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+      const months = [
+        "January", "February", "March", "April", "May", "June", 
+        "July", "August", "September", "October", "November", "December"
+      ];
+
+      function convertNumberToWords(n) {
+        const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
         const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
-        let n = parseInt(num, 10);
-        if (isNaN(n)) return num;
-        if (n < 20) return units[n];
-        if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? " " + units[n % 10] : "");
-        if (n < 1000) return units[Math.floor(n / 100)] + " Hundred" + (n % 100 !== 0 ? " " + yearToWords(n % 100) : "");
-        if (n < 10000) return yearToWords(Math.floor(n / 1000)) + " Thousand" + (n % 1000 !== 0 ? " " + yearToWords(n % 1000) : "");
-        return num;
+
+        if (n < 20) return ones[n];
+        if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? " " + ones[n % 10] : "");
+        if (n < 1000) return ones[Math.floor(n / 100)] + " Hundred" + (n % 100 !== 0 ? " " + convertNumberToWords(n % 100) : "");
+        if (n < 100000) return convertNumberToWords(Math.floor(n / 1000)) + " Thousand" + (n % 1000 !== 0 ? " " + convertNumberToWords(n % 1000) : "");
+        return String(n);
       }
 
-      let dWord = daysWords[parseInt(d, 10)] || d;
-      let mWord = months[parseInt(m, 10) - 1] || m;
-      let yWord = yearToWords(y);
+      let dWord = daysWords[d] || String(d);
+      let mWord = months[m - 1] || "";
+      let yWord = convertNumberToWords(y);
 
-      return `${dWord} ${mWord} ${yWord}`;
+      return `${dWord} ${mWord} ${yWord}`.trim();
     }
 
     async function fetchSheetData() {
@@ -334,7 +340,7 @@
         });
 
         if (sessions.length > 0) {
-          sessionFilter.value = sessions[sessions.length - 1]; // Latest session default
+          sessionFilter.value = sessions[sessions.length - 1];
         }
 
         const classes = [...new Set(allStudents.map(s => s.className).filter(Boolean))];
@@ -435,24 +441,38 @@
     }
 
     function renderDateBoxes(d, m, y) {
-      let d1 = (d || "")[0] || "", d2 = (d || "")[1] || "";
-      let m1 = (m || "")[0] || "", m2 = (m || "")[1] || "";
+      let dStr = String(d || "").padStart(2, '0');
+      let mStr = String(m || "").padStart(2, '0');
       let yStr = String(y || "");
       return `
-        <span style="margin-right:2px;">Date</span><div class="box-digits"><span class="box-digit">${d1}</span><span class="box-digit">${d2}</span></div>
-        <span style="margin: 0 2px 0 4px;">Month</span><div class="box-digits"><span class="box-digit">${m1}</span><span class="box-digit">${m2}</span></div>
+        <span style="margin-right:2px;">Date</span><div class="box-digits"><span class="box-digit">${dStr[0]||''}</span><span class="box-digit">${dStr[1]||''}</span></div>
+        <span style="margin: 0 2px 0 4px;">Month</span><div class="box-digits"><span class="box-digit">${mStr[0]||''}</span><span class="box-digit">${mStr[1]||''}</span></div>
         <span style="margin: 0 2px 0 4px;">Year</span><div class="box-digits">
-          <span class="box-digit">${yStr[0] || ''}</span><span class="box-digit">${yStr[1] || ''}</span><span class="box-digit">${yStr[2] || ''}</span><span class="box-digit">${yStr[3] || ''}</span>
+          <span class="box-digit">${yStr[0]||''}</span><span class="box-digit">${yStr[1]||''}</span><span class="box-digit">${yStr[2]||''}</span><span class="box-digit">${yStr[3]||''}</span>
         </div>
       `;
     }
 
     function buildCardHTML(st) {
-      const dobInWords = convertDateToWords(st.dobDay, st.dobMonth, st.dobYear);
+      // Auto-extract day/month/year if not separately present
+      let day = st.dobDay;
+      let month = st.dobMonth;
+      let year = st.dobYear;
+
+      if ((!day || !month || !year) && st.dob) {
+        let parts = st.dob.split(/[-/]/);
+        if (parts.length === 3) {
+          day = parts[0];
+          month = parts[1];
+          year = parts[2];
+        }
+      }
+
+      const dobInWords = convertDateToWords(day, month, year);
 
       return `
         <div class="sr-card">
-          <!-- Top Header -->
+          <!-- Header -->
           <div class="sr-header">
             <div style="width: 60px;"></div>
             <div class="sr-title-block">
@@ -462,7 +482,7 @@
             <div class="sr-number-badge">${st.srNo || ''}</div>
           </div>
 
-          <!-- Meta Row -->
+          <!-- Meta Line -->
           <div class="meta-line">
             <div class="meta-cell">प्रवेश फाइल सं०....................</div>
             <div class="meta-cell">निष्कासन फाइल सं०....................</div>
@@ -470,7 +490,7 @@
             <div class="meta-cell">पंजिका सं०....................</div>
           </div>
 
-          <!-- 5 Columns Main Grid -->
+          <!-- Main Details Grid -->
           <table class="main-grid">
             <thead>
               <tr>
@@ -507,15 +527,15 @@
             </tbody>
           </table>
 
-          <!-- Date of Birth Rows -->
+          <!-- DOB Strips -->
           <div class="info-strip">
             <div class="strip-cell" style="width: 44%; display: flex; align-items: center;">
               <span style="font-weight:600; margin-right:4px;">जन्मतिथि / Date of Birth:</span> 
-              ${renderDateBoxes(st.dobDay, st.dobMonth, st.dobYear)}
+              ${renderDateBoxes(day, month, year)}
             </div>
             <div class="strip-cell" style="width: 56%;">
               <span style="font-weight:600;">जन्मतिथि (शब्दों में) / Date of Birth:</span> 
-              <span>${dobInWords}</span>
+              <span style="font-weight: bold; margin-left: 4px;">${dobInWords}</span>
             </div>
           </div>
 
@@ -532,7 +552,7 @@
             </div>
           </div>
 
-          <!-- Bottom History Table -->
+          <!-- Bottom Class Table -->
           <table class="table-footer">
             <thead>
               <tr>
